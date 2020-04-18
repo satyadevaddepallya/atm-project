@@ -1,0 +1,35 @@
+apply plugin: 'java'
+apply plugin: 'eclipse'
+
+version = '1.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+
+apply from: 'build-utils/gradle_tasks/repositories.gradle'
+apply from: 'build-utils/gradle_tasks/increment_version.gradle'
+apply from: 'build-utils/gradle_tasks/build_dockerfile.gradle'
+apply from: 'build-utils/gradle_tasks/checkstyle.gradle'
+
+//create a single Jar with all dependencies
+task fatJar(type: Jar) {
+	manifest {
+        attributes 'Implementation-Title': 'ATM Project', 
+        	'Implementation-Version': version,
+        	'Main-Class': 'atm.project.AtmProject'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+//Get dependencies from Maven central repository
+repositories {
+    mavenCentral()
+}
+
+//Project dependencies
+dependencies {
+	compile 'ch.qos.logback:logback-classic:1.1.2'
+	
+}
